@@ -1,0 +1,9 @@
+# 数据文件体积大，可从 EPA 官网重新获取
+data/
+aqi_clean.csv
+*.zip
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/

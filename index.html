@@ -4,76 +4,178 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>美国空气质量健康风险地图 · 数据分析项目</title>
-<script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js"></script>
 <style>
-  :root {
-    --bg: #f6f8fa; --panel: #ffffff; --text: #24292f; --muted: #57606a;
-    --border: #d0d7de; --accent: #0969da; --code-bg: #f6f8fa;
-  }
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--text);
-         font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; }
-  .banner { background: linear-gradient(135deg, #1f6feb 0%, #0b3d91 100%);
-            color: #fff; padding: 48px 24px 40px; text-align: center; }
-  .banner h1 { margin: 0 0 8px; font-size: 28px; }
-  .banner p  { margin: 0; opacity: .85; font-size: 15px; }
-  .container { max-width: 980px; margin: -24px auto 64px; padding: 0 16px; }
-  .card { background: var(--panel); border: 1px solid var(--border);
-          border-radius: 12px; padding: 40px 48px; box-shadow: 0 4px 16px rgba(0,0,0,.06); }
-  @media (max-width: 640px) { .card { padding: 24px 18px; } }
-  .card img { max-width: 100%; border: 1px solid var(--border); border-radius: 8px; }
-  .card h1 { font-size: 24px; border-bottom: 1px solid var(--border); padding-bottom: .3em; }
-  .card h2 { font-size: 20px; border-bottom: 1px solid var(--border); padding-bottom: .3em; margin-top: 1.6em; }
-  .card h3 { font-size: 16px; margin-top: 1.4em; }
-  .card table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 14px; }
-  .card th, .card td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
-  .card th { background: var(--code-bg); }
-  .card tr:nth-child(even) td { background: #fafbfc; }
-  .card code { background: var(--code-bg); padding: 2px 6px; border-radius: 4px;
-               font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
-  .card pre  { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px;
-               padding: 16px; overflow-x: auto; }
-  .card pre code { background: none; padding: 0; }
-  .card blockquote { margin: 12px 0; padding: 4px 16px; color: var(--muted);
-                     border-left: 4px solid var(--accent); background: #f0f6ff; border-radius: 0 8px 8px 0; }
-  .card a { color: var(--accent); text-decoration: none; }
-  .card a:hover { text-decoration: underline; }
-  .card ul, .card ol { padding-left: 1.6em; }
-  .card li { margin: 4px 0; line-height: 1.7; }
-  .card p  { line-height: 1.8; }
-  .footer { text-align: center; color: var(--muted); font-size: 13px; padding: 24px; }
-  #toc { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px;
-         padding: 12px 20px; font-size: 14px; margin: 16px 0; }
-  #toc a { color: var(--accent); }
+  :root { --bg:#f6f8fa; --panel:#fff; --text:#24292f; --muted:#57606a;
+          --border:#d0d7de; --accent:#0969da; --code:#f6f8fa; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text);
+         font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif; line-height:1.8; }
+  .banner { background:linear-gradient(135deg,#1f6feb 0%,#0b3d91 100%); color:#fff;
+            padding:52px 24px 44px; text-align:center; }
+  .banner h1 { margin:0 0 10px; font-size:30px; }
+  .banner p { margin:0; opacity:.88; font-size:15px; }
+  .badges { margin-top:14px; }
+  .badges span { display:inline-block; background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.35);
+                 color:#fff; border-radius:20px; padding:3px 14px; font-size:13px; margin:0 5px; }
+  .container { max-width:980px; margin:-26px auto 64px; padding:0 16px; }
+  .card { background:var(--panel); border:1px solid var(--border); border-radius:12px;
+          padding:44px 52px; box-shadow:0 4px 16px rgba(0,0,0,.06); }
+  @media (max-width:640px){ .card{padding:26px 20px;} }
+  h1.f { font-size:24px; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+  h2 { font-size:20px; border-bottom:1px solid var(--border); padding-bottom:.3em; margin-top:1.8em; }
+  h3 { font-size:16px; margin-top:1.5em; }
+  table { border-collapse:collapse; width:100%; margin:14px 0; font-size:14.5px; }
+  th,td { border:1px solid var(--border); padding:8px 13px; text-align:left; }
+  th { background:var(--code); }
+  tr:nth-child(even) td { background:#fafbfc; }
+  img.chart { max-width:100%; border:1px solid var(--border); border-radius:8px; margin:10px 0; }
+  code { background:var(--code); padding:2px 6px; border-radius:4px;
+         font-family:Consolas,"Cascadia Code",monospace; font-size:13.5px; }
+  pre { background:var(--code); border:1px solid var(--border); border-radius:8px;
+        padding:16px; overflow-x:auto; font-size:13.5px; line-height:1.6; }
+  blockquote { margin:14px 0; padding:6px 18px; color:var(--muted);
+               border-left:4px solid var(--accent); background:#f0f6ff; border-radius:0 8px 8px 0; }
+  a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+  ul,ol { padding-left:1.6em; } li { margin:5px 0; }
+  .hl { color:#c0392b; font-weight:600; }
+  .footer { text-align:center; color:var(--muted); font-size:13px; padding:24px; }
 </style>
 </head>
 <body>
+
 <div class="banner">
   <h1>美国空气质量健康风险地图</h1>
-  <p>基于 32.4 万条 EPA 监测数据的探索性数据分析 · 求职作品集项目</p>
+  <p>基于 32.4 万条 EPA 监测数据的探索性数据分析（EDA）｜时间 · 空间 · 污染物三维健康风险画像</p>
+  <div class="badges">
+    <span>Python 3</span><span>Pandas</span><span>Matplotlib</span><span>Seaborn</span><span>2025.10</span>
+  </div>
 </div>
+
 <div class="container">
-  <div class="card" id="content">
-    <p style="color:#57606a">正在加载报告…</p>
-  </div>
-  <div class="footer">
-    技术栈：Python · Pandas · Matplotlib · Seaborn ｜ 数据来源：U.S. EPA
-  </div>
+<div class="card">
+
+<h2>1. 项目概述</h2>
+<p>空气污染是全球最主要的公共健康威胁之一。美国环保署（EPA）将多种污染物浓度换算为统一的空气质量指数（AQI），并按健康影响分为六级：当 AQI 超过 100 时，儿童、老年人及呼吸系统疾病患者等敏感人群的健康将受到影响。</p>
+<p>本项目基于 EPA 2025 年全年分县逐日 AQI 监测数据（原始 323,653 条，清洗后 323,633 条），运用 Pandas 完成数据清洗与一致性审计，从<strong>时间、空间、污染物</strong>三个维度开展探索性分析（EDA），构建"何时、何地、因何种污染物，谁的健康面临风险"的三维画像，并输出可直接落地的分季治理建议。</p>
+
+<table>
+<tr><th>指标</th><th>结果</th></tr>
+<tr><td>数据规模</td><td>原始 323,653 条 × 10 字段；清洗后 323,633 条，覆盖 54 个州/地区、767 个县级行政区</td></tr>
+<tr><td>数据质量</td><td>剔除 20 条越界异常记录（占 0.006%），其余无重复、无缺失</td></tr>
+<tr><td>关键发现</td><td>夏季为风险高发期；加州南部三县为持续暴露区；臭氧与 PM2.5 呈显著季节切换</td></tr>
+<tr><td>产出物</td><td>清洗脚本、分析脚本、可视化图表 ×3、业务结论 ×3</td></tr>
+</table>
+
+<h2>2. 数据源与采集方案</h2>
+<table>
+<tr><th>项目</th><th>说明</th></tr>
+<tr><td>数据来源</td><td>美国环保署（U.S. EPA）官方 Air Quality Index 监测数据</td></tr>
+<tr><td>数据文件</td><td>daily_aqi_by_county_2025.csv（公开数据，ZIP 压缩包分发）</td></tr>
+<tr><td>覆盖范围</td><td>54 个州/地区、767 个县级行政区（有监测站的单位），2025-01-01 至 12-31 全年逐日</td></tr>
+<tr><td>记录粒度</td><td>每县每日一条：当日代表站点（Defining Site）的 AQI 值</td></tr>
+<tr><td>字段构成</td><td>州/县名称及代码、日期、AQI、健康等级、首要污染物、参与监测站点数</td></tr>
+</table>
+<p><strong>采集方案</strong>：从 EPA 公开数据门户下载年度 ZIP 包，解压后以 <code>dtype=str</code> 全字符串读入 Pandas，避免县代码（如 <code>"003"</code>）的前导零在读取时被吞掉——这一细节是代码类字段清洗的常见坑。</p>
+<p><strong>口径说明</strong>：AQI 为 EPA 标准算法产物，取值区间 [0, 500]；每日县级 AQI 取当日县域内对 AQI 贡献最大的监测站点值。EPA 仅发布有监测站点的县的数据，故有效县数为 767，而非全美全部县级行政区。</p>
+
+<h2>3. 数据预处理与清洗</h2>
+<p>清洗遵循"<strong>先量化问题、再处理、可复核</strong>"的原则，全程 6 步，每步均输出处理数量供审计：</p>
+<p><strong>① 列名标准化</strong>：去空格、统一小写、空格转下划线（<code>State Name</code> → <code>state_name</code>）。<br>
+<strong>② 双重去重</strong>：全列完全重复 + 业务主键（州+县+日期）分别检查，本数据均为 0。<br>
+<strong>③ 缺失值分级处理</strong>：关键字段（日期、AQI）缺失删行；分类字段缺失填 <code>"Unknown"</code> 并保留标记列。本数据各列缺失均为 0。<br>
+<strong>④ 字段类型转换</strong>：日期转 <code>datetime</code> 并派生年/月/星期/季节；数值型用 <code>errors='coerce'</code>；州/县代码保持字符串并补前导零；低基数字段转 <code>category</code>。<br>
+<strong>⑤ 异常值约束</strong>：以 EPA 规范 [0, 500] 为有效区间，区间外置 NaN 而非删行。<span class="hl">共发现 20 条越界记录，占总量 0.006%</span>。<br>
+<strong>⑥ 逻辑一致性审计（本项目亮点）</strong>：用 EPA 官方分级断点（50/100/150/200/300）重算 Category 与源标签逐条比对。<span class="hl">20 条不一致恰好就是那 20 条越界记录</span>——异常数据在两条校验链下交叉定位，清洗逻辑形成闭环。</p>
+<blockquote>清洗产出：<code>aqi_clean.csv</code>（323,633 条 × 18 字段），后续分析均基于此文件。</blockquote>
+
+<h2>4. 探索性数据分析</h2>
+
+<h3>4.1 整体画像：全年空气以"良好"为主基调</h3>
+<p>年均 AQI <strong>41.4</strong>，中位数 40；<strong>74.9%</strong> 的天数为 Good 等级，污染日（AQI&gt;100）合计约 1.0%。整体良好，但尾部风险不可忽视——全年最大 AQI 达 497（接近爆表上限 500）。</p>
+
+<h3>4.2 时间维度：夏季是风险高发期，而非冬季</h3>
+<img class="chart" src="figs/fig1_monthly_aqi_trend.png" alt="月度AQI趋势">
+<p>月均 AQI 自 5 月起快速攀升，6 月触顶（47.2），6–9 月持续高于全年均值线（41.4）；污染日占比同向波动，8 月最高达 2.2%，为冬季月份（约 0.2–0.4%）的 <strong>7 倍</strong>。10 月后双双回落至谷底（月均 35.8）。</p>
+<blockquote><strong>解读</strong>：美国的污染驱动以夏季臭氧光化学反应为主，与公众"雾霾在冬季"的直觉相反——风险预警的重心应在夏季。</blockquote>
+
+<h3>4.3 空间维度：加州南部三县是"持续暴露区"</h3>
+<img class="chart" src="figs/fig2_state_ranking.png" alt="州排名">
+<p>各州年均 AQI 均未超 50（EPA Moderate 上限），但头部集中明显：<strong>加州以 49.3 居首</strong>（污染日占比 3.7%），犹他、亚利桑那紧随其后。县一级分化更为剧烈：</p>
+<table>
+<tr><th>县</th><th>年均 AQI</th><th>污染日占比</th></tr>
+<tr><td>San Bernardino（CA）</td><td>90.6</td><td>30.1%</td></tr>
+<tr><td>Riverside（CA）</td><td>88.8</td><td>29.9%</td></tr>
+<tr><td>Los Angeles（CA）</td><td>85.4</td><td>26.8%</td></tr>
+<tr><td>El Paso（TX）</td><td>80.4</td><td>15.4%</td></tr>
+</table>
+<blockquote><strong>解读</strong>：加州南部三县全年约 <strong>30%</strong> 的天数对敏感人群不健康，重污染县 Top15 中加州独占 8 席。居民面临的不是偶发污染，而是持续暴露。</blockquote>
+
+<h3>4.4 污染物维度：臭氧与 PM2.5 双主导，季节切换显著</h3>
+<img class="chart" src="figs/fig3_pollutant_season_heatmap.png" alt="污染物季节热力图">
+<p>首要污染物构成中，<strong>臭氧占 49.6%、PM2.5 占 46.7%</strong>，两者合计超 96%。按季节交叉分布，呈现明确的"接力"结构：</p>
+<table>
+<tr><th>季节</th><th>Ozone（臭氧）</th><th>PM2.5</th><th>NO₂</th></tr>
+<tr><td>春季</td><td><strong>62.0%</strong></td><td>34.6%</td><td>0.7%</td></tr>
+<tr><td>夏季</td><td><strong>52.0%</strong></td><td>45.2%</td><td>0.4%</td></tr>
+<tr><td>秋季</td><td>50.7%</td><td><strong>45.3%</strong></td><td>1.0%</td></tr>
+<tr><td>冬季</td><td>30.9%</td><td><strong>64.1%</strong></td><td>1.6%</td></tr>
+</table>
+<ul>
+<li><strong>臭氧</strong>：春夏季为主（52–62%），冬季降至 30.9% —— 高温强光照驱动光化学反应</li>
+<li><strong>PM2.5</strong>：冬季升至 64.1%（四季最高）—— 取暖季排放叠加逆温层</li>
+<li>两种主导污染物治理手段完全不同（臭氧控机动车/VOCs，PM2.5 控燃煤/采暖），"全年一套方案"必然事倍功半</li>
+</ul>
+<blockquote><strong>解读</strong>：春夏季以臭氧污染为主，冬季切换为 PM2.5 主导，季节"接力"结构明确。治理需分季施策。</blockquote>
+
+<h3>4.5 数据可信度自检</h3>
+<p>低覆盖样本（参与站点 &lt;1）占比 0%，Category 与断点不一致率在清洗后归零。结论建立在完整、自洽的样本之上；残余局限见第 6 节。</p>
+
+<h2>5. 业务结论与项目价值</h2>
+<p><strong>结论一：健康风险预警窗口应锁定 6–9 月。</strong><br>
+夏季污染日占比 2.2% 为冬季的 7 倍。落地动作：卫生部门将敏感人群预警期设为 6–9 月并于 5 月底前完成渠道上线；学校夏季调整户外课时段避开午后臭氧高峰。</p>
+<p><strong>结论二：治理资源应向加州南部三县精准倾斜。</strong><br>
+San Bernardino、Riverside、Los Angeles 三县年均 AQI 超 85、约 30% 天数不健康。落地动作：监管侧对三县实施 VOCs 企业排查与尾气抽检加密；医疗侧呼吸科按污染日占比预估 6–9 月接诊量并提前储备。</p>
+<p><strong>结论三：建立"一张日历、两套方案"的分季治理机制。</strong><br>
+臭氧春夏季高发、PM2.5 冬季高发。落地动作：4–9 月主打机动车限行与 VOCs 管控，10–3 月主打采暖与交通排放管控；考核指标改为"当季首要污染物超标天数"，避免年均值掩盖单季成效。</p>
+<p><strong>项目价值</strong>：本项目示范了从原始公开数据到可落地业务建议的完整分析链路——数据审计（20 条异常交叉定位）、方法严谨性（分组统计设样本量门槛 n≥100）、结论可执行性（每条建议均明确到责任方与动作）。这套方法论可直接迁移至任何"时间—空间—指标"三维结构的数据分析场景。</p>
+
+<h2>6. 总结、局限性与后续方向</h2>
+<p><strong>总结</strong>：项目完成了"采集 → 清洗 → 审计 → EDA → 结论"的全流程闭环。最大收获是两个方法论细节：用 EPA 官方断点做一致性审计，把"数据缺陷"转化为"分析严谨性"的展示；在空间分组中设置样本量门槛（n≥100），避免小样本县域得出误导性"年均值"。</p>
+<table>
+<tr><th>局限</th><th>影响</th></tr>
+<tr><td>仅覆盖 2025 单一年份</td><td>季节性结论可靠，长期趋势无法判断</td></tr>
+<tr><td>县级取单代表站点值</td><td>无法刻画县内空间差异，乡村监测覆盖较弱</td></tr>
+<tr><td>含美墨边境"Country Of Mexico"站点</td><td>已识别并注明，美国境外结论不适用</td></tr>
+<tr><td>AQI 为复合指数</td><td>首要污染物为当日贡献最大者，无法还原多污染物复合暴露</td></tr>
+</table>
+<p><strong>后续优化方向</strong>：</p>
+<ol>
+<li><strong>极端事件归因</strong>：对 AQI&gt;400 的尾部记录逐条定位（春季 497 爆表事件），结合野火/沙尘公开事件库做驱动因素关联分析</li>
+<li><strong>地图可视化</strong>：基于县界 GeoJSON 绘制年均 AQI 分级着色地图，将"风险热点"从表格升级为空间直观呈现</li>
+<li><strong>引入人口维度</strong>：叠加各县人口与敏感人群结构数据，把"污染天数"升级为"人群暴露量"（天数 × 人口）</li>
+<li><strong>跨年对比</strong>：接入 2023–2024 年历史数据，验证季节性规律稳定性并输出趋势判断</li>
+</ol>
+
+<h2>仓库结构与复现</h2>
+<pre>.
+├── README.md                  # 项目文档（GitHub 展示版）
+├── index.html                 # 本页面
+├── data_cleaning_eda.py       # 数据清洗 + 探索性分析（输出 aqi_clean.csv）
+├── visualization.py           # 可视化脚本（输出 figs/ 下三张图）
+├── figs/                      # 分析图表 ×3
+└── data/                      # 原始数据不入库，按第 2 节说明下载</pre>
+<p><strong>快速复现</strong>：</p>
+<pre>pip install pandas matplotlib seaborn
+python data_cleaning_eda.py     # 生成 aqi_clean.csv
+python visualization.py         # 生成 figs/*.png</pre>
+<p><strong>关于原始数据</strong>：<code>daily_aqi_by_county_2025.csv</code> 约 15 MB（32 万行），可从 <a href="https://www.epa.gov/outdoor-air-quality-data">EPA 官网</a> 免费获取，遵循仓库轻量化原则不提交原始数据。</p>
+
+<hr>
+<p style="color:#57606a;font-size:13px">分析代码与图表：MIT License ｜ 数据来源：U.S. EPA Air Quality Index 公开监测数据</p>
+
 </div>
-<script>
-fetch('README.md')
-  .then(r => { if (!r.ok) throw new Error('README.md 加载失败'); return r.text(); })
-  .then(md => {
-    // 去掉文档顶部的 H1/H2（横幅已展示标题），从第一个分隔线后开始
-    const parts = md.split(/\n---\n/);
-    const body = parts.length > 1 ? parts.slice(1).join('\n---\n') : md;
-    document.getElementById('content').innerHTML = marked.parse(body);
-    document.title = '美国空气质量健康风险地图 · 数据分析项目';
-  })
-  .catch(err => {
-    document.getElementById('content').innerHTML =
-      '<p style="color:#c0392b">报告加载失败：' + err.message + '</p>';
-  });
-</script>
+<div class="footer">技术栈：Python · Pandas · Matplotlib · Seaborn ｜ 数据来源：U.S. EPA</div>
+</div>
+
 </body>
 </html>
